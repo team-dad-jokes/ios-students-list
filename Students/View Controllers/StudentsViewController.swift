@@ -16,10 +16,29 @@ class StudentsViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     // MARK: - Properties
+    
+    private let studentController = StudentController()
+    private var filteredAndSortedStudents: [Student] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        tableView.dataSource = self
+        //tableView.delegate = self
+        
+        studentController.loadFromPersistentStore(
+            
+            // think of this parameter as a function, such that when .loadFromPersistentStore is done, it inserts two variables "error" and "students" into the following code and runs it.  So the parameter of .loadFromPersistentStore is a function, and in StudentController you can see where that function is called (with arguments "error" and "students")
+            completion: { students, error in
+            if let error = error {
+                print("Error loading students: \(error)")
+            }
+            DispatchQueue.main.async {
+                if let students = students {
+                    self.filteredAndSortedStudents = students
+                }
+            }
+        })
     }
     
     // MARK: - Action Handlers
