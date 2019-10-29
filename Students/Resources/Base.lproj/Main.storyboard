@@ -32,6 +32,9 @@
                                             <segment title="First Name"/>
                                             <segment title="Last Name"/>
                                         </segments>
+                                        <connections>
+                                            <action selector="sort:" destination="nMX-2f-THx" eventType="valueChanged" id="yKP-0G-vIZ"/>
+                                        </connections>
                                     </segmentedControl>
                                 </subviews>
                             </stackView>
@@ -52,6 +55,9 @@
                                             <segment title="Web"/>
                                             <segment title="UX"/>
                                         </segments>
+                                        <connections>
+                                            <action selector="filter:" destination="nMX-2f-THx" eventType="valueChanged" id="iGV-CX-p4O"/>
+                                        </connections>
                                     </segmentedControl>
                                 </subviews>
                             </stackView>

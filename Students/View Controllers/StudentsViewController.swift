@@ -18,7 +18,11 @@ class StudentsViewController: UIViewController {
     // MARK: - Properties
     
     private let studentController = StudentController()
-    private var filteredAndSortedStudents: [Student] = []
+    private var filteredAndSortedStudents: [Student] = [] {
+        didSet {
+            tableView.reloadData()
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,15 +31,16 @@ class StudentsViewController: UIViewController {
         //tableView.delegate = self
         
         studentController.loadFromPersistentStore(
-            
-            // think of this parameter as a function, such that when .loadFromPersistentStore is done, it inserts two variables "error" and "students" into the following code and runs it.  So the parameter of .loadFromPersistentStore is a function, and in StudentController you can see where that function is called (with arguments "error" and "students")
+
             completion: { students, error in
             if let error = error {
                 print("Error loading students: \(error)")
             }
             DispatchQueue.main.async {
                 if let students = students {
+                    
                     self.filteredAndSortedStudents = students
+                    self.tableView.reloadData()
                 }
             }
         })
@@ -44,9 +49,26 @@ class StudentsViewController: UIViewController {
     // MARK: - Action Handlers
     
     @IBAction func sort(_ sender: UISegmentedControl) {
+        updateDataSource()
     }
     
     @IBAction func filter(_ sender: UISegmentedControl) {
+        updateDataSource()
+    }
+    
+    private func updateDataSource() {
+        let filter = TrackType(rawValue: filterSelector.selectedSegmentIndex) ?? .none
+        let sort = SortOptions(rawValue: sortSelector.selectedSegmentIndex) ?? .firstName
+        
+        studentController.filter(with: filter, sortedBy: sort, completion: {
+            students in
+            
+            //DispatchQueue.main.async {
+                self.filteredAndSortedStudents = students
+
+            //}
+        })
+        
     }
     
     // MARK: - Private
@@ -54,13 +76,14 @@ class StudentsViewController: UIViewController {
 
 extension StudentsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 0
+        return filteredAndSortedStudents.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "StudentCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Student", for: indexPath)
         
-        // Configure cell
+        cell.textLabel?.text = filteredAndSortedStudents[indexPath.row].name
+        cell.detailTextLabel?.text = filteredAndSortedStudents[indexPath.row].course
         
         return cell
     }

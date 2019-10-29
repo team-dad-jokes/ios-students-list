@@ -24,6 +24,9 @@ enum SortOptions: Int {
 
 class StudentController {
     
+    //this is typical of a modelController, you're going to have a bunch of models!
+    private var students: [Student] = []
+    
     private var persistentFileURL: URL? {
         guard let filePath = Bundle.main.path(forResource: "students", ofType: "json") else { return nil }
         return URL(fileURLWithPath: filePath)
@@ -42,6 +45,7 @@ class StudentController {
                 let data = try Data(contentsOf: url)
                 let decoder = JSONDecoder()
                 let students = try decoder.decode([Student].self, from: data)
+                self.students = students
                 completion(students, nil)
             } catch {
                 NSLog("Error occured loading data from FileManager \(error)")
@@ -53,5 +57,23 @@ class StudentController {
     
     func filter(with trackType: TrackType, sortedBy sorter: SortOptions, completion: @escaping ([Student]) -> Void) {
         
+        var updatedStudents: [Student]
+        
+        switch trackType {
+        case .iOS:
+            updatedStudents = students.filter { $0.course == "iOS" }
+        case .Web:
+            updatedStudents = students.filter { $0.course == "Web" }
+        case .UX:
+            updatedStudents = students.filter { $0.course == "UX" }
+        case .none:
+            updatedStudents = students
+        }
+        if sorter == .firstName {
+            updatedStudents = updatedStudents.sorted { $0.firstName < $1.firstName }
+        } else {
+            updatedStudents = updatedStudents.sorted { $0.lastName < $1.lastName }
+        }
+        completion(updatedStudents)
     }
 }
